@@ -17,15 +17,19 @@ class VentanaPrincipal(Botones):
     def crear_botones(self):
         ctk.CTkButton(self.frame,text="Calculadora", **self.opciones_boton).place(x=370, y=95)
         ctk.CTkButton(self.frame,text="Matrices", command=self.abrir_matrices, **self.opciones_boton).place(x=370, y=165)
-        ctk.CTkButton(self.frame,text="Integrales",**self.opciones_boton).place(x=370, y=200)
+        ctk.CTkButton(self.frame,text="Integrales",command=self.abrir_inte,**self.opciones_boton).place(x=370, y=200)
         ctk.CTkButton(self.frame,text="Derivadas",command=self.abrir_derivadas , **self.opciones_boton).place(x=370, y=130)
-        ctk.CTkButton(self.frame,text="Operaciones con Complejos", **self.opciones_boton).place(x=340, y=235)
+        ctk.CTkButton(self.frame,text="Operaciones con Complejos", command=self.abrir_imagi,**self.opciones_boton).place(x=340, y=235)
         ctk.CTkButton(self.frame,text="Graficar", **self.opciones_boton).place(x=370, y=60)
 
     def abrir_matrices(self):
         MatrixOperations(self.inter)
     def abrir_derivadas(self):
         Derivadas(self.inter)
+    def abrir_inte(self):
+        integrales(self.inter)
+    def abrir_imagi(self):
+        op_inmaginarios(self.inter)
 
     def imagen(self):
         self.i = PhotoImage(file="imagen.png")

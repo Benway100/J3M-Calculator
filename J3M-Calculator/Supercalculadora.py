@@ -547,19 +547,15 @@ def derivar():
                         orden = int(orden_str)
                         derivada = sp.diff(sp.sympify(funcion), x, orden)
                         etiqueta_resultado = tk.Label(ventana_resultado, text=f"La derivada de orden {orden} de la función {funcion} es: \n{derivada}", fg="black", font=("Doble struck", 15))
-                        
+
                         etiqueta_resultado.place(x=70, y=280)
                     except (sp.SympifyError, ValueError) as e:
                         etiqueta_resultado = customtkinter.CTkLabel(frame1, text=f"Verifique la manera en la que escribio la funcion", text_color="black")
-                        
                         etiqueta_resultado.place(x=70, y=280)
                 else:
                     etiqueta_resultado = customtkinter.CTkLabel(frame1, text="Por favor, ingresa una función y un orden válido.", text_color="black")
-                    
                     etiqueta_resultado.place(x=70, y=280)
-
             boton_calcular = customtkinter.CTkButton(master=frame1, text="Calcular Derivada", command=calcular_derivada, fg_color="#a3d9f3", text_color="black", hover_color="#FFFFFF")
-            
             boton_calcular.place(y=180, x=200)
 
         boton1 = customtkinter.CTkButton(frame, text="Derivada Implicita", command=deri_implicita,fg_color="#a3d9f3",text_color="black", hover_color="#FFFFFF")
