@@ -20,7 +20,7 @@ class VentanaPrincipal(Botones):
         ctk.CTkButton(self.frame,text="Integrales",command=self.abrir_inte,**self.opciones_boton).place(x=370, y=200)
         ctk.CTkButton(self.frame,text="Derivadas",command=self.abrir_derivadas , **self.opciones_boton).place(x=370, y=130)
         ctk.CTkButton(self.frame,text="Operaciones con Complejos", command=self.abrir_imagi,**self.opciones_boton).place(x=340, y=235)
-        ctk.CTkButton(self.frame,text="Graficar", **self.opciones_boton).place(x=370, y=60)
+        ctk.CTkButton(self.frame,text="Graficar", command=self.abrir_grafi,**self.opciones_boton).place(x=370, y=60)
 
     def abrir_matrices(self):
         MatrixOperations(self.inter)
@@ -30,7 +30,8 @@ class VentanaPrincipal(Botones):
         integrales(self.inter)
     def abrir_imagi(self):
         op_inmaginarios(self.inter)
-
+    def abrir_grafi(self):
+        GraficadorFunciones(self.inter)
     def imagen(self):
         self.i = PhotoImage(file="imagen.png")
         ctk.CTkLabel(self.frame, image=self.i, text="", fg_color="#f0f0f0").place(relx=0.09, rely=0.45, relheight=0.45, relwidth=0.45)

@@ -4,7 +4,6 @@ from tkinter.ttk import *
 from decimal import Decimal 
 from fractions import Fraction
 import numpy as np
-from random import randint
 import sympy as sp
 import tkinter as tk
 from numpy import matrix

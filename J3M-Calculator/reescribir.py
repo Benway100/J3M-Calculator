@@ -9,88 +9,320 @@ class Botones:
             "border_color": "#f0f0f0"
         }
         
+        
+class GraficadorFunciones(Botones):
+    def __init__(self, master):
+        self.master = Toplevel(master)
+        self.master.config(bg="#ffffff")
+        self.master.title("Graficador de funciones")
+        self.master.geometry("500x200")
+        self.configurar_botones()
+        
+        
+        frame = ctk.CTkFrame(self.master, fg_color="#f0f0f0")
+        frame.pack(pady=10, padx=15, fill="both", expand=True)
+
+        label = ctk.CTkLabel(frame, text="Elige tu forma de gráfica", text_color="black", font=("Arial", 25))
+        label.pack(pady=15)
+
+        ctk.CTkButton(frame, text="Gráfica 3D", command=self.grafica3d, **self.opciones_boton).pack(padx=20, pady=10)
+        ctk.CTkButton(frame, text="Gráfica 2D", command=self.grafica2d, **self.opciones_boton).pack(padx=20, pady=10)
+
+    def grafica2d(self):
+        GraficadorBase(tk.Toplevel(self.master), "2D")
+
+    def grafica3d(self):
+        GraficadorBase(tk.Toplevel(self.master), "3D")
+
+
+class GraficadorBase(Botones):
+    def __init__(self, master, mode):
+        self.master =(master)
+        self.mode = mode
+        
+        self.master.title(f"Graficador de funciones {mode}")
+        self.master.geometry("800x600")
+        self.configurar_botones()
+        self.create_widgets()
+        
+
+    def create_widgets(self):
+        tk.Label(self.master, text="Ingrese la función:").pack()
+        self.function_entry = tk.Entry(self.master, width=50)
+        self.function_entry.pack()
+
+        domain_frame = tk.Frame(self.master)
+        domain_frame.pack()
+        
+        self.x_min_entry, self.x_max_entry = self.create_entry_pair(domain_frame, "x mínimo:", "x máximo:", 0)
+        if self.mode == "3D":
+            self.y_min_entry, self.y_max_entry = self.create_entry_pair(domain_frame, "y mínimo:", "y máximo:", 1)
+
+        ctk.CTkButton(self.master, text="Graficar", command=self.plot_function, **self.opciones_boton).pack(pady=5)
+        ctk.CTkButton(self.master, text="Borrar", command=self.clear_plot, **self.opciones_boton).pack(pady=5)
+
+        self.fig, self.ax = plt.subplots(subplot_kw={"projection": "3d"} if self.mode == "3D" else {})
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self.master)
+        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+
+        toolbar = NavigationToolbar2Tk(self.canvas, self.master)
+        toolbar.update()
+        self.canvas.get_tk_widget().pack()
+
+        self.error_label = tk.Label(self.master, fg="red")
+        self.error_label.pack()
+
+    def create_entry_pair(self, frame, label_min, label_max, row):
+        tk.Label(frame, text=label_min).grid(row=row, column=0)
+        min_entry = tk.Entry(frame)
+        min_entry.grid(row=row, column=1)
+        tk.Label(frame, text=label_max).grid(row=row, column=2)
+        max_entry = tk.Entry(frame)
+        max_entry.grid(row=row, column=3)
+        return min_entry, max_entry
+
+    def plot_function(self):
+        x_min, x_max = float(self.x_min_entry.get()), float(self.x_max_entry.get())
+        x = np.linspace(x_min, x_max, 1000)
+
+        try:
+            if self.mode == "3D":
+                y_min, y_max = float(self.y_min_entry.get()), float(self.y_max_entry.get())
+                y = np.linspace(y_min, y_max, 1000)
+                x, y = np.meshgrid(x, y)
+                z = eval(self.function_entry.get())
+                self.ax.plot_surface(x, y, z, cmap='viridis')
+            else:
+                y = eval(self.function_entry.get())
+                self.ax.plot(x, y)
+                
+            self.ax.set_title(f'Gráfico {self.mode} de la función: ' + self.function_entry.get())
+            self.canvas.draw()
+        except Exception as e:
+            self.error_label.config(text="Error: " + str(e))
+
+    def clear_plot(self):
+        self.ax.clear()
+        self.canvas.draw()
+
 class op_inmaginarios(Botones):
-    def __init__(self,inter):
-        self.inter =Toplevel(inter)
+    def __init__(self, inter):
+        self.inter = Toplevel(inter)
         self.inter.config(bg="#ffffff")
         self.inter.geometry("500x200")
-        self.frame=ctk.CTkFrame(master=self.inter,fg_color="#f0f0f0", height=0)
-        self.frame.pack(pady=10, padx= 15, fill= "both", expand= True, )
+        self.frame = ctk.CTkFrame(master=self.inter, fg_color="#f0f0f0", height=0)
+        self.frame.pack(pady=10, padx=15, fill="both", expand=True)
         self.configurar_botones()
         self.entradas()
-        self.inter.resizable(0,0)
-        
-    def entradas(self):    
-        label_cal=ctk.CTkLabel(master= self.frame, text="Elige el tipo de Calculo", font=("Arial",27),text_color="#000000")
-        label_cal.place(x=90,y=10)
-        boton_op=ctk.CTkButton(master=self.frame,text="Operaciones",**self.opciones_boton)
-        boton_op.place(x=240, y= 55)
-        boton_conver=ctk.CTkButton(master=self.frame,text="Conversiones",command=self.opraciones,**self.opciones_boton)
-        boton_conver.place(x=70, y=55 )
+        self.inter.resizable(0, 0)
 
-        self.frame_calculos1=ctk.CTkFrame(master=self.frame,fg_color="#f0f0f0", height= 350)
-        self.frame_calculos=ctk.CTkFrame(master=self.frame,fg_color="#f0f0f0", height= 350)
-        
-    def opraciones(self):    
-        self.frame_calculos1.pack_forget()
-        self.frame_calculos.pack(pady=10, padx= 15, fill= "both", expand= True) 
-        self.inter.geometry("500x600")
-        
+    def entradas(self):
+        label_cal = ctk.CTkLabel(master=self.frame, text="Elige el tipo de Calculo", font=("Arial", 27), text_color="#000000")
+        label_cal.place(x=90, y=10)
+        boton_op = ctk.CTkButton(master=self.frame, text="Operaciones",command=self.opraciones, **self.opciones_boton)
+        boton_op.place(x=240, y=55)
+        boton_conver = ctk.CTkButton(master=self.frame, text="Conversiones", command=self.conver, **self.opciones_boton)
+        boton_conver.place(x=70, y=55)
+        self.frame_calculos = ctk.CTkFrame(master=self.inter, fg_color="#f0f0f0", height=350)
+        self.frame_calculos.pack(pady=10, padx=15, fill="both", expand=True)
+        self.frame_calculos.pack_forget()  
+        self.frame_calculos1 = ctk.CTkFrame(master=self.inter, fg_color="#f0f0f0", height=350)
+        self.frame_calculos1.pack(pady=10, padx=15, fill="both", expand=True)
+        self.frame_calculos1.pack_forget() 
+
+    def opraciones(self):
+        self.frame_calculos1.pack_forget() 
+        self.frame_calculos.pack(pady=10, padx=15, fill="both", expand=True)
+        self.inter.geometry("500x600")  
+
         entry_real = ctk.CTkEntry(self.frame_calculos, border_color="#f0f0f0")
         entry_real.place(x=50, y=75)
         entry_comple = ctk.CTkEntry(self.frame_calculos, border_color="#f0f0f0")
         entry_comple.place(x=255, y=75)
-        primer_num = ctk.CTkLabel(self.frame_calculos, text="Primer numero", text_color="#000000",font=("Arial", 22))                
+
+        primer_num = ctk.CTkLabel(self.frame_calculos, text="Primer numero", text_color="#000000", font=("Arial", 22))
         primer_num.place(x=25, y=10)
-        label_real = ctk.CTkLabel(self.frame_calculos, text="Parte Real", text_color="#000000", font=("Arial", 17))    
+        label_real = ctk.CTkLabel(self.frame_calculos, text="Parte Real", text_color="#000000", font=("Arial", 17))
         label_real.place(x=55, y=48)
-        label_comple = ctk.CTkLabel(self.frame_calculos, text="Parte Imaginaria", text_color="#000000",font=("Arial", 17))                                           
+        label_comple = ctk.CTkLabel(self.frame_calculos, text="Parte Imaginaria", text_color="#000000", font=("Arial", 17))
         label_comple.place(x=260, y=48)
-        segundo_num = ctk.CTkLabel(self.frame_calculos, text="Segundo numero", text_color="#000000",  font=("Arial", 22))
+
+        segundo_num = ctk.CTkLabel(self.frame_calculos, text="Segundo numero", text_color="#000000", font=("Arial", 22))
         segundo_num.place(x=25, y=130)
-        label_real2 = ctk.CTkLabel(self.frame_calculos, text="Parte Real", text_color="#000000",font=("Arial", 17))
+        label_real2 = ctk.CTkLabel(self.frame_calculos, text="Parte Real", text_color="#000000", font=("Arial", 17))
         label_real2.place(x=55, y=168)
-        label_comple2 = ctk.CTkLabel(self.frame_calculos, text="Parte Imaginaria", text_color="#000000",font=("Arial", 17))       
+        label_comple2 = ctk.CTkLabel(self.frame_calculos, text="Parte Imaginaria", text_color="#000000", font=("Arial", 17))
         label_comple2.place(x=260, y=168)
+
         entry_real2 = ctk.CTkEntry(self.frame_calculos, border_color="#f0f0f0")
         entry_real2.place(x=55, y=195)
         entry_comple2 = ctk.CTkEntry(self.frame_calculos, border_color="#f0f0f0")
         entry_comple2.place(x=255, y=195)
 
         def calcular_suma(operacion):
-            a = entry_real.get()
-            k = Fraction(a)
-            b = entry_comple.get()
-            j = Fraction(b)
-            c = entry_real2.get()
-            h = Fraction(c)
-            d = entry_comple2.get()
-            g = Fraction(d)
+            k = Fraction(entry_real.get())
+            j = Fraction(entry_comple.get())
+            h = Fraction(entry_real2.get())
+            g = Fraction(entry_comple2.get())
             m = k + j * 1j
             n = h + g * 1j
+
             if operacion == "suma":
-                result = np.sum(m + n)
+                result = m + n
             elif operacion == "resta":
-                result = np.sum(m - n)
+                result = m - n
             elif operacion == "multiplicacion":
-                result = np.multiply(m, n)
+                result = np.multiply(m,n)
             elif operacion == "division":
-                result = np.divide(m, n)
+                result = m / n
+
             parte_real = Fraction(result.real).limit_denominator()
             parte_imaginaria = Fraction(result.imag).limit_denominator()
-            resultado = f"{parte_real} +{parte_imaginaria}i" if parte_imaginaria > 0 else f"{parte_real} {parte_imaginaria}i"
-            label_result = ctk.CTkLabel(self.frame_calculos, text=f"El resultado de su Operacion es : \n {resultado}", text_color="#000000", font=("Arial", 20))
-            label_result.place(x=80, y=360)
-       
-        boton_calcular=ctk.CTkButton(self.frame_calculos,text="Calcular Suma",fg_color="#a3d9f3",text_color="black", hover_color="#FFFFFF",command=lambda:calcular_suma("suma"),width=100)
-        boton_calcular.place(x=25,y=280)
-        boton_calcular1=ctk.CTkButton(self.frame_calculos,text="Calcular Resta",fg_color="#a3d9f3",text_color="black", hover_color="#FFFFFF",command=lambda:calcular_suma("resta"),width=100)
-        boton_calcular1.place(x=165,y=280)
-        boton_calcular2=ctk.CTkButton(self.frame_calculos,text="Calcular Multiplicacion",fg_color="#a3d9f3",text_color="black", hover_color="#FFFFFF",command=lambda:calcular_suma("multiplicacion"),width=80)
-        boton_calcular2.place(x=300,y=280)
-        boton_calcular3=ctk.CTkButton(self.frame_calculos,text="Calcular Division",fg_color="#a3d9f3",text_color="black", hover_color="#FFFFFF",command=lambda:calcular_suma("division"),width=100)
-        boton_calcular3.place(x=160,y=320)
+            self.resultado = f"{parte_real} +{parte_imaginaria}i" if parte_imaginaria > 0 else f"{parte_real} {parte_imaginaria}i"
 
+            self.respuestas(self.frame_calculos, 80, 360)
+        
+        boton_calcular = ctk.CTkButton(self.frame_calculos, text="Calcular Suma", **self.opciones_boton, command=lambda: calcular_suma("suma"), width=100)
+        boton_calcular.place(x=25, y=280)
+        boton_calcular1 = ctk.CTkButton(self.frame_calculos, text="Calcular Resta", **self.opciones_boton, command=lambda: calcular_suma("resta"), width=100)
+        boton_calcular1.place(x=165, y=280)
+        boton_calcular2 = ctk.CTkButton(self.frame_calculos, text="Calcular Multiplicacion", **self.opciones_boton, command=lambda: calcular_suma("multiplicacion"), width=80)
+        boton_calcular2.place(x=300, y=280)
+        boton_calcular3 = ctk.CTkButton(self.frame_calculos, text="Calcular Division", **self.opciones_boton, command=lambda: calcular_suma("division"), width=100)
+        boton_calcular3.place(x=160, y=320)
+        
+    def conver(self):
+        self.frame_calculos.pack_forget()  
+        self.frame_calculos1.pack(pady=10, padx=15, fill="both", expand=True)
+        self.inter.geometry("500x600")  
+
+        self.entradasprimer_num = ctk.CTkLabel(self.frame_calculos1, text="Elija la forma en la que está representado su número", text_color="#000000", font=("Arial", 18))                                           
+        self.entradasprimer_num.place(x=25, y=10)
+
+        self.entradasboton_polar = ctk.CTkButton(master=self.frame_calculos1, text="Forma polar", command=lambda: self.texto("polar"), **self.opciones_boton, width=100)
+        self.entradasboton_polar.place(x=10, y=50)
+
+        self.entradasboton_binomica = ctk.CTkButton(master=self.frame_calculos1, text="Forma Binomica", command=lambda: self.texto("binomica"), **self.opciones_boton, width=100)
+        self.entradasboton_binomica.place(x=115, y=50)
+
+        self.entradasboton_cartesiana = ctk.CTkButton(master=self.frame_calculos1, text="Forma Cartesiana", command=lambda: self.texto("cartesiana"), **self.opciones_boton, width=100)
+        self.entradasboton_cartesiana.place(x=225, y=50)
+
+        self.entradasboton_exponencial = ctk.CTkButton(master=self.frame_calculos1, text="Forma Exponencial", command=lambda: self.texto("exponencial"), **self.opciones_boton, width=100)
+        self.entradasboton_exponencial.place(x=345, y=50) 
+
+        self.widgets_representacion = []
+
+    def texto(self, a):
+        
+        self.limpiar_representacion()
+        
+        self.entry_theta = ctk.CTkEntry(master=self.frame_calculos1, border_color="#f0f0f0", width=40)
+        self.entry_theta.place(x=300, y=145)
+        self.entry_r = ctk.CTkEntry(master=self.frame_calculos1, border_color="#f0f0f0", width=40)
+        self.entry_r.place(x=120, y=145)
+
+        self.label_forma = ctk.CTkLabel(self.frame_calculos1, text="¿A qué forma quiere convertirlo?", text_color="#000000", font=("Arial", 20))
+        self.label_forma.place(x=70, y=200)
+       
+
+        if a == "polar":
+            self.label = ctk.CTkLabel(master=self.frame_calculos1, text="Representación polar -- r ( cosθ + sinθ i )", text_color="#000000", font=("Arial", 20))
+            self.label.place(x=50, y=105)
+            self.r = ctk.CTkLabel(master=self.frame_calculos1, text="R =", text_color="#000000", font=("Arial", 18))
+            self.theta = ctk.CTkLabel(master=self.frame_calculos1, text="θ =", text_color="#000000", font=("Arial", 18))
+            self.r.place(x=90, y=145)
+            self.theta.place(x=270, y=145)
+            self.widgets_representacion.extend([self.label, self.r, self.theta])
+            
+            self.boton_polar_binomica=ctk.CTkButton(self.frame_calculos1,text="Forma Binomica",command=lambda:self.calcular_conver("polar_binomica"),**self.opciones_boton).place(x=15,y=240)
+            self.boton_polar_exponencial=ctk.CTkButton(self.frame_calculos1,text="Forma Exponencial",command=lambda:self.calcular_conver("polar_exponencial"),**self.opciones_boton).place(x=165,y=240)
+            self.boton_polar_carteciana=ctk.CTkButton(self.frame_calculos1,text="Forma Cartesiana",command=lambda:self.calcular_conver("polar_cartesiana"),**self.opciones_boton).place(x=315,y=240)
+        
+
+        elif a == "binomica":
+            self.label = ctk.CTkLabel(master=self.frame_calculos1, text="Representación Binomica -- a + bi", text_color="#000000", font=("Arial", 20))
+            self.label.place(x=50, y=105)
+            self.a = ctk.CTkLabel(master=self.frame_calculos1, text="a =", text_color="#000000", font=("Arial", 18))
+            self.a.place(x=90, y=145)
+            self.b = ctk.CTkLabel(master=self.frame_calculos1, text="b =", text_color="#000000", font=("Arial", 18))
+            self.b.place(x=270, y=145)
+            self.widgets_representacion.extend([self.label, self.a, self.b])
+            
+            self.boton_polar_binomica1=ctk.CTkButton(self.frame_calculos1,text="Forma Polar",command=lambda:self.calcular_conver("binomica_polar"),**self.opciones_boton).place(x=15,y=240)
+            self.boton_polar_exponencial1=ctk.CTkButton(self.frame_calculos1,text="Forma Exponencial",command=lambda:self.calcular_conver("binomica_expo"),**self.opciones_boton).place(x=165,y=240)
+            self.boton_polar_carteciana1=ctk.CTkButton(self.frame_calculos1,text="Forma Cartesiana",command=lambda:self.calcular_conver("binomica_cartesiana"),**self.opciones_boton).place(x=315,y=240)
+
+        elif a == "cartesiana":
+            self.label = ctk.CTkLabel(master=self.frame_calculos1, text="Representación Cartesiana -- a , bi", text_color="#000000", font=("Arial", 20))
+            self.label.place(x=50, y=105)
+            self.a = ctk.CTkLabel(master=self.frame_calculos1, text="a =", text_color="#000000", font=("Arial", 18))
+            self.a.place(x=90, y=145)
+            self.b = ctk.CTkLabel(master=self.frame_calculos1, text="b =", text_color="#000000", font=("Arial", 18))
+            self.b.place(x=270, y=145)
+            self.widgets_representacion.extend([self.label, self.a, self.b])
+            
+            self.boton_polar_binomica2=ctk.CTkButton(self.frame_calculos1,text="Forma Binomica",command=lambda:self.calcular_conver("carte_binomica"),**self.opciones_boton).place(x=15,y=240)
+            self.boton_polar_exponencial2=ctk.CTkButton(self.frame_calculos1,text="Forma Exponencial",command=lambda:self.calcular_conver("binomica_expo"),**self.opciones_boton).place(x=165,y=240)
+            self.boton_polar_carteciana2=ctk.CTkButton(self.frame_calculos1,text="Forma Polar",command=lambda:self.calcular_conver("binomica_polar"),**self.opciones_boton).place(x=315,y=240)
+        elif a == "exponencial":
+            self.label = ctk.CTkLabel(master=self.frame_calculos1, text="Representación Exponencial -- re^θi", text_color="#000000", font=("Arial", 20))
+            self.label.place(x=50, y=105)
+            self.r = ctk.CTkLabel(master=self.frame_calculos1, text="R =", text_color="#000000", font=("Arial", 18))
+            self.r.place(x=90, y=145)
+            self.theta = ctk.CTkLabel(master=self.frame_calculos1, text="θ =", text_color="#000000", font=("Arial", 18))
+            self.theta.place(x=270, y=145)
+            self.widgets_representacion.extend([self.label, self.r, self.theta])
+            
+            self.boton_polar_binomica3=ctk.CTkButton(self.frame_calculos1,text="Forma Binomica",command=lambda:self.calcular_conver("polar_binomica"),**self.opciones_boton).place(x=15,y=240)
+            self.boton_polar_exponencial3=ctk.CTkButton(self.frame_calculos1,text="Forma Polar",command=lambda:self.calcular_conver("expo_polar"),**self.opciones_boton).place(x=165,y=240)
+            self.boton_polar_carteciana3=ctk.CTkButton(self.frame_calculos1,text="Forma Cartesiana",command=lambda:self.calcular_conver("polar_cartesiana"),**self.opciones_boton).place(x=315,y=240)
+
+    def limpiar_representacion(self):
+        for widget in self.widgets_representacion:
+            widget.destroy()
+        self.widgets_representacion.clear()
+
+        
+    def calcular_conver(self,a):
+        self.a=Fraction(self.entry_r.get())
+        self.b=Fraction(self.entry_theta.get())
+        
+        self.floata=float(self.a)
+        self.floatb=float(self.b)
+        
+        self.r = Fraction("{:.2f}".format(math.sqrt((self.floata**2)+(self.floatb**2))))
+        self.theta = Fraction("{:.2f}".format(math.degrees(math.atan(self.floatb/self.floata))))
+        
+        self.q=Fraction("{:.2f}".format(self.floata*cos(self.floatb))).limit_denominator()
+        self.w=Fraction("{:.2f}".format(self.floata*sin(self.floatb))).limit_denominator()
+        
+        if a=="polar_binomica":
+            self.resultado = f"{(self.q)} {self.w}i" if self.w>0 else f"{self.q} +{self.w}i" 
+        elif a== "polar_cartesiana":
+            self.resultado =f"({(self.q)} , {self.w}i)" if self.w>0 else f"({self.q} , +{self.w}i)"
+        elif a =="polar_exponencial":
+            self.resultado=f"{self.a}e^{self.b}i"
+            
+        elif a =="expo_polar":
+            self.resultado=f"{self.a}(cos({self.b}) + sin({self.b})i)"
+        
+        elif a== "binomica_polar":
+            self.resultado = f"{self.r}(cos({self.theta}) + sin({self.theta})i)"
+        elif a== "binomica_cartesiana":
+            self.resultado =f"({(self.a)} , {self.b}i)" if self.b>0 else f"({self.a} ,  +{self.b}i)"
+        elif a== "binomica_expo":
+            self.resultado = f"{self.r}e^{self.theta}i"
+        
+        elif a == "carte_binomica":
+            self.resultado = f"{(self.a)}  {self.b}i" if self.b<0 else f"{self.a}  +{self.b}i"
+            
+            
+        self.respuestas(self.frame_calculos1,85,310)
+        
+    def respuestas(self, frame, x, y):
+        label_result = ctk.CTkLabel(frame, text=f"El resultado de su Operacion es : \n {self.resultado}", text_color="#000000", font=("Arial", 20))
+        label_result.place(x=x, y=y)
 
 
             
