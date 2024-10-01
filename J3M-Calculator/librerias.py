@@ -18,3 +18,4 @@ from numpy import *
 import warnings
 import customtkinter as ctk 
 from sympy import symbols, integrate,simplify,pretty
+import random

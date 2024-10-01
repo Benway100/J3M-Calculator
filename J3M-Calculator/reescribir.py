@@ -1,5 +1,6 @@
 from librerias import *
 
+
 class Botones:
     def configurar_botones(self):
         self.opciones_boton = {
@@ -707,7 +708,4 @@ class MatrixOperations(Botones):
         frame.pack(pady=20, padx=20, fill="both", expand=True)
         etiqueta_error = ctk.CTkLabel(frame, text=message, text_color="#000000")
         etiqueta_error.pack(padx=20, pady=20)
-
-
-
-
+        
