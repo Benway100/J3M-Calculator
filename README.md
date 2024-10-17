@@ -1,4 +1,3 @@
-
 class CatalogoTienda:
     def __init__(self):
         # Inicializamos el catálogo con algunas categorías (filas) y productos vacíos (columnas)
@@ -34,22 +33,36 @@ class CatalogoTienda:
         return None
 
     def mostrar_catalogo(self):
-        """Muestra el catálogo completo con categorías y productos."""
+        """Muestra el catálogo en formato de matriz, con categorías y productos."""
+        # Determinamos el máximo número de productos en cualquier categoría
+        max_productos = max(len(productos) for productos in self.productos.values())
+
+        # Encabezado de las columnas
+        print(f"{'Categoría':<15}", end='')
+        for i in range(1, max_productos + 1):
+            print(f"Producto {i:<10}", end='')
+        print()  # Salto de línea para el encabezado
+
+        # Mostrar cada categoría y sus productos como una fila de la "matriz"
         for categoria, productos in self.productos.items():
-            print(f'Categoría: {categoria} | Productos: {", ".join(productos) if productos else "Ninguno"}')
+            print(f"{categoria:<15}", end='')
+            for i in range(max_productos):
+                if i < len(productos):
+                    print(f"{productos[i]:<12}", end='')  # Imprimir producto si existe
+                else:
+                    print(f"{'':<12}", end='')  # Espacio en blanco si no hay producto
+            print()  # Salto de línea al final de cada categoría
 
-
+# Ejemplo de uso:
 catalogo = CatalogoTienda()
 
+# Agregar productos
 catalogo.agregar_producto('Electrónica', 'Teléfono')
 catalogo.agregar_producto('Electrónica', 'Televisor')
 catalogo.agregar_producto('Ropa', 'Camisa')
+catalogo.agregar_producto('Ropa', 'Pantalones')
 catalogo.agregar_producto('Alimentos', 'Pan')
+catalogo.agregar_producto('Alimentos', 'Leche')
 
-catalogo.mostrar_catalogo()
-
-catalogo.buscar_producto('Camisa')
-
-
-
+# Mostrar catálogo en formato de matriz
 catalogo.mostrar_catalogo()
