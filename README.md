@@ -38,23 +38,18 @@ class CatalogoTienda:
         for categoria, productos in self.productos.items():
             print(f'Categoría: {categoria} | Productos: {", ".join(productos) if productos else "Ninguno"}')
 
-# Ejemplo de uso:
+
 catalogo = CatalogoTienda()
 
-# Agregar productos
 catalogo.agregar_producto('Electrónica', 'Teléfono')
 catalogo.agregar_producto('Electrónica', 'Televisor')
 catalogo.agregar_producto('Ropa', 'Camisa')
 catalogo.agregar_producto('Alimentos', 'Pan')
 
-# Mostrar catálogo
 catalogo.mostrar_catalogo()
 
-# Buscar un producto
 catalogo.buscar_producto('Camisa')
 
-# Eliminar un producto
-catalogo.eliminar_producto('Electrónica', 'Televisor')
 
-# Mostrar catálogo después de la eliminación
+
 catalogo.mostrar_catalogo()
